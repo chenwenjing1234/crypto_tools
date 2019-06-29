@@ -1,0 +1,12 @@
+prefix=/home/chenwenjing/work/gmssl_pro/third_debug
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+enginesdir=${libdir}/engines-1.1
+
+Name: GmSSL-libcrypto
+Description: GmSSL cryptography library
+Version: 2.4.1
+Libs: -L${libdir} -lcrypto
+Libs.private: -ldl 
+Cflags: -I${includedir}

@@ -1,0 +1,10 @@
+cmake_minimum_required(VERSION 3.2)
+PROJECT(crypto_tools)
+
+SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
+SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
+
+ADD_SUBDIRECTORY(src)
+ADD_SUBDIRECTORY(test)
+ADD_SUBDIRECTORY(public/cryptography)
+ADD_SUBDIRECTORY(public/common_utils)
