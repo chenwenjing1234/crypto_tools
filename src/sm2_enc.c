@@ -8,6 +8,7 @@
 #include <cp_sm2.h>
 #include <stdlib.h>
 #include "ca_define.h"
+#include "cp_defines.h"
 
 //crypto_tools sm2_enc -pubkey xx -plain xx
 

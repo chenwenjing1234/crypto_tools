@@ -8,6 +8,7 @@
 #include "cp_sm2.h"
 #include "cm_utils.h"
 #include "global.h"
+#include "cp_defines.h"
 
 static int _sm2_pubkey_encoding(char *pubkey_hex, uint8_t **pubkey_der, int *pubkey_der_len) {
     uint32_t ret = 0;

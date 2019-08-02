@@ -7,6 +7,7 @@
 #include <openssl/sm2.h>
 
 #include "cm_utils.h"
+#include "cp_defines.h"
 
 int test()
 {
@@ -229,7 +230,6 @@ uint64_t cp_sm2_pubkey_encoding(uint8_t *pubkey, size_t pubkey_len,
 }
 
 uint64_t cp_new_eckey_by_hex_pubkey(char *hex_pubkey, EC_KEY **ec_key) {
-
     EC_KEY *key = NULL;
     EC_POINT *ec_point = NULL;
     key = EC_KEY_new_by_curve_name(NID_sm2p256v1);
@@ -263,6 +263,8 @@ uint64_t cp_hex_pubkey_2_evpkey(char *hex_pubkey, EVP_PKEY **pkey) {
     EVP_PKEY *evp_pkey = NULL;
     EC_KEY *ec_key = NULL;
 
+    evp_pkey = EVP_PKEY_new();
+
     cp_new_eckey_by_hex_pubkey(hex_pubkey, &ec_key);
 
     EVP_PKEY_set1_EC_KEY(evp_pkey, ec_key);
@@ -284,29 +286,61 @@ uint64_t cp_hex_pubkey_prikey_2_evpkey(char *hex_pubkey, char *hex_prikey,
     return CP_SUCCESS;
 }
 
-uint64_t cp_build_x509_req(X509_REQ **x509_req, char *c, char *cn, char *o,
-                           char *ou, char *l, char *pubkey, char *prikey) {
-    X509_REQ *req = NULL;
-    X509_NAME *x509_name = NULL;
-    EVP_PKEY *pkey = NULL;
+//uint64_t cp_build_x509_req(X509_REQ **x509_req, char *c, char *cn, char *o,
+//                           char *ou, char *l, char *pubkey, char *prikey) {
+//    X509_REQ *req = NULL;
+//    X509_NAME *x509_name = NULL;
+//    EVP_PKEY *pkey = NULL;
+//
+//    req = X509_REQ_new();
+//    x509_name = X509_REQ_get_subject_name(req);
+//
+//    X509_NAME_add_entry_by_txt(x509_name, "C", MBSTRING_ASC, c, -1, -1, 0);
+//    X509_NAME_add_entry_by_txt(x509_name, "CN", MBSTRING_ASC, cn, -1, -1, 0);
+//    X509_NAME_add_entry_by_txt(x509_name, "O", MBSTRING_ASC, o, -1, -1, 0);
+//    X509_NAME_add_entry_by_txt(x509_name, "OU", MBSTRING_ASC, ou, -1, -1, 0);
+//    X509_NAME_add_entry_by_txt(x509_name, "L", MBSTRING_ASC, l, -1, -1, 0);
+//
+//    X509_REQ_set_version(req, 0L);
+//
+//    cp_hex_pubkey_prikey_2_evpkey(pubkey, prikey, &pkey);
+//    X509_REQ_set_pubkey(req, pkey);
+//
+////    X509_ALGOR_set0(req, ASN1_OBJECT *aobj, int ptype,
+////    void *pval);
+//
+//    X509_REQ_sign(req, pkey, EVP_sm3());
+//
+//}
 
-    req = X509_REQ_new();
-    x509_name = X509_REQ_get_subject_name(req);
+uint64_t cp_sm2_sign(EC_KEY *ec_key, uint8_t *msg, int msg_len, int pre_process,
+                     uint8_t *signature, uint32_t *signature_len) {
+    uint64_t rc = 0;
+    int type = NID_undef;
+    unsigned char dgst[EVP_MAX_MD_SIZE];
+    size_t dgstlen = sizeof(dgst);
+    const EVP_MD *md = EVP_sm3();
 
-    X509_NAME_add_entry_by_txt(x509_name, "C", MBSTRING_ASC, c, -1, -1, 0);
-    X509_NAME_add_entry_by_txt(x509_name, "CN", MBSTRING_ASC, cn, -1, -1, 0);
-    X509_NAME_add_entry_by_txt(x509_name, "O", MBSTRING_ASC, o, -1, -1, 0);
-    X509_NAME_add_entry_by_txt(x509_name, "OU", MBSTRING_ASC, ou, -1, -1, 0);
-    X509_NAME_add_entry_by_txt(x509_name, "L", MBSTRING_ASC, l, -1, -1, 0);
-
-    X509_REQ_set_version(req, 0L);
-
-    cp_hex_pubkey_prikey_2_evpkey(pubkey, prikey, &pkey);
-    X509_REQ_set_pubkey(req, pkey);
-
-//    X509_ALGOR_set0(req, ASN1_OBJECT *aobj, int ptype,
-//    void *pval);
-
-    X509_REQ_sign(req, pkey, EVP_sm3());
-
+    if(!msg || !signature || !ec_key) {
+        return rc;
+    }
+    if(pre_process) {
+        if(!SM2_compute_message_digest(md, md, (const unsigned char *)msg, (size_t)msg_len, SM2_DEFAULT_ID_GMT09, 16,
+                                       dgst, &dgstlen, ec_key)){
+            rc = ERR_get_error();
+            goto end;
+        }
+        if (SM2_sign(type, dgst, (int)dgstlen, signature, signature_len, ec_key) != 1) {
+            rc = ERR_get_error();
+            goto end;
+        }
+    } else {
+        if (!SM2_sign(type, msg, msg_len, signature, signature_len, ec_key)) {
+            rc = ERR_get_error();
+            goto end;
+        }
+    }
+    rc = CP_SUCCESS;
+    end:
+    return rc;
 }

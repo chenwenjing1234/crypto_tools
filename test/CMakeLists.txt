@@ -1,6 +1,6 @@
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/third_debug/gmssl/include)
 
-LINK_DIRECTORIES(${PROJECT_SOURCE_DIR}/third_debug/gmssl/lib)
+LINK_DIRECTORIES(${PROJECT_SOURCE_DIR}/third_debug/gmssl/lib/linux)
 
 AUX_SOURCE_DIRECTORY(. GMSSL_TEST_SRCS)
 

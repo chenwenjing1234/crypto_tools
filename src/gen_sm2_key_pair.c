@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <cp_sm2.h>
+#include "cp_defines.h"
 
 int gen_sm2_kp_main(int argc, char *argv[]) {
     uint64_t ret;

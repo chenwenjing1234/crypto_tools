@@ -12,11 +12,13 @@ typedef struct {
     char *help_info;
 } func_table_st;
 
-
+#define ERR_OK                   0X00000000
 
 
 int exec_func_by_option(int argc, char *argv[]);
 
 int print_help_info(int, char *argv[]);
+
+int save_bin_file(uint8_t *data, size_t data_len, char *path);
 
 #endif //CRYPTO_TOOLS_GLOBAL_H
