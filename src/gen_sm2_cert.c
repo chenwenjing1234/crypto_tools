@@ -118,7 +118,7 @@ static int _gen_sm2_cert(uint8_t *csr, int csr_len, char *cert_type, char *ca_pa
 
     ret = _save_cert(x509, cert_path);
     if (ret != ERR_OK) {
-        printf("_set_cert_sn failed\n");
+        printf("_save_cert failed\n");
         goto end;
     }
 
@@ -170,7 +170,7 @@ static int _get_cert_sn(char *path, long *sn)
 
     ret = cm_read_str_file(sn_path, (uint8_t**)&str_sn, &str_sn_len);
     if (ret != CM_SUCCESS) {
-        printf("cm_read_str_file failed\n");
+        printf("cm_read_str_file failed, path: %s\n", sn_path);
         return ret;
     }
 
@@ -179,7 +179,7 @@ static int _get_cert_sn(char *path, long *sn)
     }
 
     if (cm_is_number(str_sn) != CM_SUCCESS) {
-        printf("SN is not number\n");
+        printf("SN is not number, sn: %s\n", str_sn);
         goto end;
     }
     *sn = atol(str_sn);
@@ -194,7 +194,7 @@ static int _get_cert_sn(char *path, long *sn)
 }
 
 static int _set_cert_validity(char *path, X509 *x509) {
-    int ret = 0;
+    int ret;
     char conf_path[256] = {0};
     int str_len;
     int validity;
@@ -225,7 +225,7 @@ static int _set_cert_validity(char *path, X509 *x509) {
         printf("cp_set_cert_validity failed\n");
         goto end;
     }
-
+    ret = ERR_OK;
 end:
     if (str_validity != NULL) {
         free(str_validity);
@@ -263,7 +263,7 @@ static int _do_x509_sign(X509 *x509, char *cert_path, char *cert_type) {
     strncat(pubkey_path_buf, "/", sizeof(pubkey_path_buf) - strlen(pubkey_path_buf));
     strncat(prikey_path_buf, "/", sizeof(prikey_path_buf) - strlen(prikey_path_buf));
 
-    if (strcmp(cert_type, CERT_TYPE_SUB) == 0) {
+    if (strcmp(cert_type, CERT_TYPE_ROOT) == 0 || strcmp(cert_type, CERT_TYPE_SUB) == 0) {
         strcat(pubkey_path_buf, ROOT_PUBKEY_NAME);
         strcat(prikey_path_buf, ROOT_PRIKEY_NAME);
     } else if (strcmp(cert_type, CERT_TYPE_LEAF) == 0){
@@ -273,13 +273,13 @@ static int _do_x509_sign(X509 *x509, char *cert_path, char *cert_type) {
 
     ret = cm_read_str_file(pubkey_path_buf, (uint8_t**)&pubkey, &pubkey_len);
     if (ret != CM_SUCCESS) {
-        printf("cm_read_str_file failed\n");
+        printf("cm_read_str_file failed, path: %s\n", pubkey_path_buf);
         goto end;
     }
 
     ret = cm_read_str_file(prikey_path_buf, (uint8_t**)&prikey, &prikey_len);
     if (ret != CM_SUCCESS) {
-        printf("cm_read_str_file failed\n");
+        printf("cm_read_str_file failed, path: %s\n", prikey_path_buf);
         goto end;
     }
 
@@ -324,7 +324,11 @@ static int _set_cert_sn(long sn, char *ca_path) {
 
     sprintf(sn_str, "%lu", sn);
 
-    return cm_write_str_file(sn_path, sn_str);
+    if(cm_write_str_file(sn_path, sn_str) != CM_SUCCESS) {
+        printf("cm_write_str_file failed, sn_path: %s\n", sn_path);
+        return 1;
+    }
+    return ERR_OK;
 }
 
 static int _save_cert(X509 *x509, char *cert_path) {
@@ -351,7 +355,7 @@ int gen_sm2_cert_main(int argc, char **argv) {
     char *cert_type = NULL;
     char *ca_path = NULL;
     int index = 2;
-    uint8_t csr[512] = {0};
+    uint8_t *csr = NULL;
     int csr_len = 0;
     FILE *fp = NULL;
 
@@ -397,12 +401,23 @@ int gen_sm2_cert_main(int argc, char **argv) {
         return ret;
     }
 
+    ret = cm_read_bin_file(csr_path, &csr, &csr_len);
+    if (ret != CM_SUCCESS) {
+        printf("cm_read_bin_file failed\n");
+        goto end;
+    }
+
     ret = _gen_sm2_cert(csr, csr_len, cert_type, ca_path, cert_path);
     if (ret != ERR_OK) {
         printf("_gen_sm2_cert failed\n");
         goto end;
     }
+
+    printf("generate sm2 certificate successful, path: %s\n", cert_path);
 end:
+    if (csr != NULL) {
+        free(csr);
+    }
     fclose(fp);
     return ret;
 }

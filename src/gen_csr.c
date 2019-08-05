@@ -14,8 +14,8 @@
 //crypto_utils gen_sm2_csr -pubkey xx [-prikey xx] -csr_out_path xxxx
 
 static int _build_x509_req(char *pubkey_hex, uint8_t *req_info, int *req_info_len);
-static int _build_x509_name(X509_NAME **x509_name, char *sn);
-static int _get_cert_sn(char *sn);
+static int _build_x509_name(X509_NAME **x509_name);
+//static int _get_cert_sn(char *sn);
 static int _gen_csr(uint8_t *req_info, int req_info_len, char *pubkey_hex, char *prikey_hex,
                     uint8_t *csr, int *csr_len);
 static int _save_csr(uint8_t *csr, size_t csr_len, char *csr_path);
@@ -26,15 +26,15 @@ static int _build_x509_req(char *pubkey_hex, uint8_t *req_info, int *req_info_le
     uint64_t cp_ret;
     X509_NAME *x509_name = NULL;
     EVP_PKEY *pkey = NULL;
-    char sn[8] = {0};
+//    char sn[8] = {0};
 
-    ret = _get_cert_sn(sn);
-    if (ret != ERR_OK) {
-        printf("_get_cert_sn failed\n");
-        return ret;
-    }
+//    ret = _get_cert_sn(sn);
+//    if (ret != ERR_OK) {
+//        printf("_get_cert_sn failed\n");
+//        return ret;
+//    }
 
-    ret = _build_x509_name(&x509_name, sn);
+    ret = _build_x509_name(&x509_name);
     if (ret != ERR_OK) {
         return ret;
     }
@@ -45,7 +45,7 @@ static int _build_x509_req(char *pubkey_hex, uint8_t *req_info, int *req_info_le
         goto end;
     }
 
-    ret = cp_build_x509_req(pkey, x509_name, 1, req_info, req_info_len);
+    ret = cp_build_x509_req(pkey, x509_name, 0, req_info, req_info_len);
     if (ret != CP_SUCCESS) {
         goto end;
     }
@@ -56,7 +56,7 @@ end:
     return ret;
 }
 
-static int _build_x509_name(X509_NAME **x509_name, char *sn) {
+static int _build_x509_name(X509_NAME **x509_name) {
     X509_NAME *name = NULL;
 
     char C[8] = {0};
@@ -95,7 +95,7 @@ static int _build_x509_name(X509_NAME **x509_name, char *sn) {
     fgets(S, sizeof(S), stdin);
     S[strlen(S)-1] = '\0';
 
-    X509_NAME_add_entry_by_txt(name, "serialNumber", MBSTRING_ASC, sn, -1, -1, 0);
+    //X509_NAME_add_entry_by_txt(name, "serialNumber", MBSTRING_ASC, sn, -1, -1, 0);
     X509_NAME_add_entry_by_txt(name, "CN", MBSTRING_ASC, CN, -1, -1, 0);
     X509_NAME_add_entry_by_txt(name, "C", MBSTRING_ASC, C, -1, -1, 0);
     X509_NAME_add_entry_by_txt(name, "OU", MBSTRING_ASC, OU, -1, -1, 0);
@@ -107,12 +107,12 @@ static int _build_x509_name(X509_NAME **x509_name, char *sn) {
     return ERR_OK;
 }
 
-static int _get_cert_sn(char *sn) {
-    char *p = "123";
-
-    strcpy(sn, p);
-    return ERR_OK;
-}
+//static int _get_cert_sn(char *sn) {
+//    char *p = "123";
+//
+//    strcpy(sn, p);
+//    return ERR_OK;
+//}
 
 static int _gen_csr(uint8_t *req_info, int req_info_len, char *pubkey_hex, char *prikey_hex,
                     uint8_t *csr, int *csr_len) {
@@ -188,7 +188,7 @@ int gen_sm2_csr_main(int argc, char **argv) {
                 prikey_hex = argv[++index];
                 break;
             }
-            if (strcmp(OPT_PATH, argv[index]) == 0) {
+            if (strcmp(OPT_CSR_OUT_PATH, argv[index]) == 0) {
                 csr_path = argv[++index];
                 break;
             }
@@ -215,7 +215,7 @@ int gen_sm2_csr_main(int argc, char **argv) {
         goto end;
     }
 
-    printf("generate csr success\n");
+    printf("generate csr success, path: %s\n", csr_path);
 
 end:
     return ret;

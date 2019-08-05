@@ -24,6 +24,7 @@
 #define OPT_PATH                "-path"
 #define OPT_CSR                 "-csr"
 #define OPT_TYPE                "-type"
+#define OPT_CSR_OUT_PATH        "-csr_out_path"
 #define OPT_CA_PATH             "-ca_path"
 #define OPT_CERT_PATH           "-cert_path"
 
