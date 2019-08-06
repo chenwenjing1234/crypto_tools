@@ -60,6 +60,8 @@ static int _sm2_pubkey_encoding(char *pubkey_hex, uint8_t **pubkey_der, int *pub
 
 int main(int argc, char *argv[]) {
 
+    cp_sm2_init();
+
     return exec_func_by_option(argc, argv);
     sm2_dec_test();
     uint64_t ret = CP_SUCCESS;

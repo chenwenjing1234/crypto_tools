@@ -15,6 +15,7 @@
 #define SM2_PUBKEY_ENCODING     "-sm2_pubkey_encoding"
 #define GEN_SM2_CSR             "-gen_sm2_csr"
 #define GEN_SM2_CERT            "-gen_sm2_cert"
+#define SM2_CERT_VERIFY         "-sm2_cert_verify"
 
 
 #define OPT_PUBKEY              "-pubkey"
@@ -27,6 +28,8 @@
 #define OPT_CSR_OUT_PATH        "-csr_out_path"
 #define OPT_CA_PATH             "-ca_path"
 #define OPT_CERT_PATH           "-cert_path"
+#define OPT_ROOT_CERT           "-root_cert"
+#define OPT_LEAF_CERT           "-leaf_cert"
 
 
 #define CERT_TYPE_ROOT          "root"
@@ -45,7 +48,9 @@
 #define SUB_PRIKEY_NAME         "sub_root.prikey"
 
 
-# define EXT_COPY_ADD            1
+#define EXT_COPY_ADD            1
+#define OID_SM3_WITH_SM2        "\x2a\x81\x1c\xcf\x55\x01\x83\x75"
+#define OID_SM3_WITH_SM2_LEN    8
 
 typedef struct options_st {
     const char *name;
@@ -71,5 +76,7 @@ int sm2_pubkey_encoding_main(int argc, char **argv);
 int gen_sm2_csr_main(int argc, char **argv);
 
 int gen_sm2_cert_main(int argc, char **argv);
+
+int sm2_cert_verify_main(int argc, char **argv);
 
 #endif //CRYPTO_TOOLS_CA_DEFINE_H

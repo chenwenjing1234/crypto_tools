@@ -164,8 +164,12 @@ static int _save_csr(uint8_t *csr, size_t csr_len, char *csr_path) {
 int gen_sm2_csr_main(int argc, char **argv) {
     int ret = ERR_OK;
     int index = 2;
+    char *pubkey_path = NULL;
+    char *prikey_path = NULL;
     char *pubkey_hex = NULL;
     char *prikey_hex = NULL;
+    int pubkey_hex_len;
+    int prikey_hex_len;
     char *csr_path = NULL;
     uint8_t req_info[512] = {0};
     int req_info_len = sizeof(req_info);
@@ -181,11 +185,11 @@ int gen_sm2_csr_main(int argc, char **argv) {
     while(index < 7){
         for(;;){
             if (strcmp(OPT_PUBKEY, argv[index]) == 0) {
-                pubkey_hex = argv[++index];
+                pubkey_path = argv[++index];
                 break;
             }
             if (strcmp(OPT_PRIKEY, argv[index]) == 0) {
-                prikey_hex = argv[++index];
+                prikey_path = argv[++index];
                 break;
             }
             if (strcmp(OPT_CSR_OUT_PATH, argv[index]) == 0) {
@@ -195,6 +199,18 @@ int gen_sm2_csr_main(int argc, char **argv) {
             ++index;
             break;
         }
+    }
+
+    ret = cm_read_str_file(pubkey_path, (uint8_t**)&pubkey_hex, &pubkey_hex_len);
+    if (ret != CM_SUCCESS) {
+        printf("cm_read_str_file failed, path: %s\n", pubkey_path);
+        goto end;
+    }
+
+    ret = cm_read_str_file(prikey_path, (uint8_t**)&prikey_hex, &prikey_hex_len);
+    if (ret != CM_SUCCESS) {
+        printf("cm_read_str_file failed, path: %s\n", prikey_path);
+        goto end;
     }
 
     ret = _build_x509_req(pubkey_hex, req_info, &req_info_len);
@@ -218,5 +234,11 @@ int gen_sm2_csr_main(int argc, char **argv) {
     printf("generate csr success, path: %s\n", csr_path);
 
 end:
+    if (pubkey_hex != NULL) {
+        free(pubkey_hex);
+    }
+    if (prikey_hex != NULL) {
+        free(prikey_hex);
+    }
     return ret;
 }

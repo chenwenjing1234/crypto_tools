@@ -15,7 +15,8 @@ func_table_st g_func_table[] = {
         {SM2_DEC, sm2_dec_main, "sm2 decrypt message"},
         {SM2_PUBKEY_ENCODING, sm2_pubkey_encoding_main, "sm2 public key encoding with DER"},
         {GEN_SM2_CSR, gen_sm2_csr_main, "generate certificate singing request"},
-        {GEN_SM2_CERT, gen_sm2_cert_main, "generate sm2 certificate"}
+        {GEN_SM2_CERT, gen_sm2_cert_main, "generate sm2 certificate"},
+        {SM2_CERT_VERIFY, sm2_cert_verify_main, "sm2 certificate verify"}
 };
 
 int print_help_info(int argc, char *argv[]) {

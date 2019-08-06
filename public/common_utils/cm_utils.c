@@ -113,6 +113,11 @@ int cm_read_str_file(char *path, uint8_t **data, int *data_len) {
     }
 
     fread(buf, 1, (size_t)file_len, fp);
+    if (buf[file_len-1] == '\n') {
+        buf[file_len-1] = '\0';
+    } else {
+        buf[file_len] = '\0';
+    }
 
     *data = buf;
     *data_len = (int)file_len;

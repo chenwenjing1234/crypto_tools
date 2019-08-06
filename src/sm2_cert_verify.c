@@ -3,7 +3,42 @@
 //
 #include <stdint.h>
 #include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 
+#include "ca_define.h"
+#include "cm_utils.h"
+#include "global.h"
+#include "cp_sm2.h"
+#include "cp_defines.h"
+
+unsigned char g_cert_sub[399] = {
+        0x30, 0x82, 0x01, 0x8B, 0x30, 0x82, 0x01, 0x32, 0xA0, 0x03, 0x02, 0x01, 0x02, 0x02, 0x01, 0x0E,
+        0x30, 0x0A, 0x06, 0x08, 0x2A, 0x81, 0x1C, 0xCF, 0x55, 0x01, 0x83, 0x75, 0x30, 0x1F, 0x31, 0x1D,
+        0x30, 0x1B, 0x06, 0x03, 0x55, 0x04, 0x03, 0x0C, 0x14, 0x56, 0x69, 0x72, 0x62, 0x6F, 0x78, 0x20,
+        0x47, 0x4D, 0x20, 0x52, 0x6F, 0x6F, 0x74, 0x20, 0x43, 0x41, 0x20, 0x53, 0x54, 0x30, 0x1E, 0x17,
+        0x0D, 0x31, 0x38, 0x31, 0x30, 0x32, 0x35, 0x30, 0x39, 0x34, 0x30, 0x33, 0x31, 0x5A, 0x17, 0x0D,
+        0x33, 0x38, 0x31, 0x30, 0x32, 0x30, 0x30, 0x39, 0x34, 0x30, 0x33, 0x31, 0x5A, 0x30, 0x21, 0x31,
+        0x1F, 0x30, 0x1D, 0x06, 0x03, 0x55, 0x04, 0x03, 0x0C, 0x16, 0x56, 0x69, 0x72, 0x62, 0x6F, 0x78,
+        0x20, 0x47, 0x4D, 0x20, 0x44, 0x65, 0x76, 0x69, 0x63, 0x65, 0x20, 0x43, 0x41, 0x20, 0x53, 0x54,
+        0x30, 0x59, 0x30, 0x13, 0x06, 0x07, 0x2A, 0x86, 0x48, 0xCE, 0x3D, 0x02, 0x01, 0x06, 0x08, 0x2A,
+        0x81, 0x1C, 0xCF, 0x55, 0x01, 0x82, 0x2D, 0x03, 0x42, 0x00, 0x04, 0x9C, 0x25, 0xA9, 0xE5, 0x6A,
+        0x1C, 0xDF, 0x83, 0xC4, 0x1D, 0xD5, 0x7B, 0x72, 0xED, 0x8C, 0xE2, 0x75, 0xDD, 0xAE, 0x78, 0xCF,
+        0x05, 0xFB, 0x90, 0x46, 0xF9, 0xC9, 0x78, 0x0B, 0x55, 0x0E, 0x97, 0xA6, 0x6B, 0x80, 0x87, 0x88,
+        0xFE, 0x3A, 0x15, 0xBB, 0x31, 0x91, 0x51, 0x49, 0x35, 0x0F, 0x15, 0x0C, 0xD4, 0x01, 0xFF, 0x5E,
+        0x61, 0xC3, 0x93, 0x3D, 0x78, 0xD9, 0x8A, 0x67, 0x04, 0x64, 0xBE, 0xA3, 0x5D, 0x30, 0x5B, 0x30,
+        0x1D, 0x06, 0x03, 0x55, 0x1D, 0x0E, 0x04, 0x16, 0x04, 0x14, 0xBF, 0x44, 0xDD, 0x69, 0x07, 0xC0,
+        0x32, 0x56, 0x52, 0x4F, 0x1E, 0xF6, 0xFB, 0x62, 0xB7, 0x01, 0xA5, 0xB5, 0x95, 0xC2, 0x30, 0x1F,
+        0x06, 0x03, 0x55, 0x1D, 0x23, 0x04, 0x18, 0x30, 0x16, 0x80, 0x14, 0xFC, 0x1D, 0x1C, 0x3D, 0x9B,
+        0x3C, 0xD9, 0x7B, 0x21, 0x91, 0x38, 0xCE, 0x05, 0x69, 0xFD, 0x3B, 0xC3, 0x98, 0x8B, 0x53, 0x30,
+        0x0C, 0x06, 0x03, 0x55, 0x1D, 0x13, 0x04, 0x05, 0x30, 0x03, 0x01, 0x01, 0xFF, 0x30, 0x0B, 0x06,
+        0x03, 0x55, 0x1D, 0x0F, 0x04, 0x04, 0x03, 0x02, 0x01, 0x96, 0x30, 0x0A, 0x06, 0x08, 0x2A, 0x81,
+        0x1C, 0xCF, 0x55, 0x01, 0x83, 0x75, 0x03, 0x47, 0x00, 0x30, 0x44, 0x02, 0x20, 0x6B, 0x36, 0x1A,
+        0xC4, 0x69, 0x29, 0xB3, 0xB6, 0x93, 0x70, 0x9D, 0xB3, 0x26, 0xD6, 0x3F, 0x54, 0xB8, 0x45, 0x48,
+        0x16, 0x3D, 0xDA, 0x5D, 0x07, 0x68, 0x7E, 0xF2, 0xCE, 0xD1, 0xAC, 0x55, 0xA6, 0x02, 0x20, 0x3A,
+        0x6C, 0xB2, 0x75, 0xBB, 0x27, 0xCB, 0x6A, 0xBD, 0xDF, 0x73, 0xC1, 0xEE, 0xF2, 0x1E, 0x08, 0xB6,
+        0x5E, 0x24, 0xCF, 0xFE, 0x45, 0xD8, 0x0A, 0x45, 0x59, 0x9D, 0x67, 0x0A, 0xD2, 0x3B, 0x2C
+};
 
 unsigned char g_cert_leaf[419] = {
         0x30, 0x82, 0x01, 0x9F, 0x30, 0x82, 0x01, 0x44, 0xA0, 0x03, 0x02, 0x01, 0x02, 0x02, 0x01, 0x02,
@@ -35,7 +70,116 @@ unsigned char g_cert_leaf[419] = {
         0x9B, 0x4A, 0xB9
 };
 
-int get_length_with_type(uint8_t *cert, int type, int *length, int *taglen) {
+static int _sm2_cert_verify(uint8_t *root_cert, int root_cert_len,
+                            uint8_t *leaf_cert, int leaf_cert_len);
+static int _get_length_with_type(uint8_t *cert, int type, int *length, int *taglen);
+
+
+static int _sm2_cert_verify(uint8_t *root_cert, int root_cert_len,
+                            uint8_t *leaf_cert, int leaf_cert_len) {
+    int ret = 1;
+    uint64_t cp_ret;
+    uint8_t *msg = NULL;
+    uint8_t *oid = NULL;
+    uint8_t *sig = NULL;
+    cert_parse_ctx_st ctx[5] = {0};
+    int t1;
+    int tag_len;
+    int msg_len;
+    int sig_len;
+    int oid_len;
+    int unused_bit_len = 1;
+    EC_KEY *ec_key = NULL;
+
+    if (leaf_cert[0] != 0x30) {
+        return ret;
+    }
+
+    ret = _get_length_with_type(leaf_cert, 0x30, &t1, &tag_len);
+    if (ret != ERR_OK) {
+        printf("_get_length_with_type failed\n");
+        return ret;
+    }
+
+    ctx[0].begin_addr = leaf_cert;
+    ctx[0].header_len = tag_len;
+    ctx[0].payload_len = t1;
+    if (ctx[0].header_len + ctx[0].payload_len > leaf_cert_len) {
+        printf("cert length invalid\n");
+        return ret;
+    }
+
+    ctx[1].begin_addr = leaf_cert + ctx[0].header_len;
+    ret = _get_length_with_type(ctx[1].begin_addr, 0x30, &t1, &tag_len);
+    if (ret != ERR_OK) {
+        printf("_get_length_with_type failed\n");
+        return ret;
+    }
+
+    ctx[1].header_len = tag_len;
+    ctx[1].payload_len = t1;
+
+    msg = ctx[1].begin_addr;
+    msg_len = ctx[1].header_len + ctx[1].payload_len;
+
+    ctx[2].begin_addr = ctx[0].begin_addr + ctx[0].header_len + ctx[1].header_len + ctx[1].payload_len;
+    ret = _get_length_with_type(ctx[2].begin_addr, 0x30, &t1, &tag_len);
+    if (ret != ERR_OK) {
+        printf("_get_length_with_type failed\n");
+        return ret;
+    }
+
+    ctx[2].header_len = tag_len;
+    ctx[2].payload_len = t1;
+
+    ctx[3].begin_addr = ctx[2].begin_addr + ctx[2].header_len;
+    ret = _get_length_with_type(ctx[3].begin_addr, 0x06, &t1, &tag_len);
+    if (ret != ERR_OK) {
+        printf("_get_length_with_type failed\n");
+        return ret;
+    }
+
+    ctx[3].header_len = tag_len;
+    ctx[3].payload_len = t1;
+
+    oid = ctx[3].begin_addr + ctx[3].header_len;
+    oid_len = ctx[3].payload_len;
+    if (oid_len != OID_SM3_WITH_SM2_LEN || memcmp(oid, OID_SM3_WITH_SM2, oid_len) != 0) {
+        printf("sign oid invalid\n");
+        return ret;
+    }
+
+    ctx[4].begin_addr = ctx[1].begin_addr + (ctx[1].header_len +
+                                             ctx[1].payload_len + ctx[2].header_len + ctx[2].payload_len);
+    ret = _get_length_with_type(ctx[4].begin_addr, 0x03, &t1, &tag_len);
+    if (ret != ERR_OK) {
+        printf("_get_length_with_type failed\n");
+        return ret;
+    }
+
+    sig = ctx[4].begin_addr + tag_len + unused_bit_len;
+    sig_len = t1 - unused_bit_len;
+
+    cp_ret = cp_get_ec_key_from_cert(root_cert, root_cert_len, &ec_key);
+    if (cp_ret != CP_SUCCESS) {
+        printf("cp_get_ec_key_from_cert failed\n");
+        ret = (int)cp_ret;
+        goto end;
+    }
+
+    ret = cp_sm2_verify(ec_key, msg, msg_len, 1, sig, sig_len);
+    if (ret != CP_SUCCESS) {
+        printf("cp_sm2_verify failed\n");
+        goto end;
+    }
+
+    ret = ERR_OK;
+end:
+    EC_KEY_free(ec_key);
+    return ret;
+}
+
+static int _get_length_with_type(uint8_t *cert, int type, int *length, int *taglen) {
     int bytes;
     int offset = 2;
     int t = 0;
@@ -57,82 +201,74 @@ int get_length_with_type(uint8_t *cert, int type, int *length, int *taglen) {
         *taglen = offset;
     }
 
-    return 0;
+    return ERR_OK;
 }
 
-typedef struct _cert_parse_ctx_st{
-    uint8_t *begin_addr;
-    int header_len;
-    int payload_len;
-} cert_parse_ctx_st;
+//crypto_tools -sm2_cert_verify -root_cert xxx -leaf_cert xxx
+int sm2_cert_verify_main(int argc, char **argv) {
+    int ret = 1;
+    char *root_cert_path = NULL;
+    char *leaf_cert_path = NULL;
+    int index = 2;
+    uint8_t *root_cert = NULL;
+    int root_cert_len = 0;
+    uint8_t *leaf_cert = NULL;
+    int leaf_cert_len = 0;
 
-int cert_parse(uint8_t *cert, int cert_len) {
-
-    uint8_t *msg = NULL;
-    uint8_t *oid = NULL;
-    uint8_t *sig = NULL;
-    cert_parse_ctx_st ctx[5] = {0};
-    int t1;
-    int taglen;
-    int msglen;
-    int siglen;
-    int oidlen;
-    int unused_bit_len = 1;
-
-    if (cert[0] != 0x30) {
+    if (argc < 6) {
+        printf("input arguments invalid, example as flow:\n");
+        printf("  crypto_tools -sm2_cert_verify -root_cert xxx -leaf_cert xxx\n");
         return 1;
     }
 
-    get_length_with_type(cert, 0x30, &t1, &taglen);
-    ctx[0].begin_addr = cert;
-    ctx[0].header_len = taglen;
-    ctx[0].payload_len = t1;
-
-    ctx[1].begin_addr = cert + ctx[0].header_len;
-    get_length_with_type(ctx[1].begin_addr, 0x30, &t1, &taglen);
-    ctx[1].header_len = taglen;
-    ctx[1].payload_len = t1;
-
-    msg = ctx[1].begin_addr;
-    msglen = ctx[1].header_len + ctx[1].payload_len;
-
-
-    ctx[2].begin_addr = ctx[0].begin_addr + ctx[0].header_len + ctx[1].header_len + ctx[1].payload_len;
-    get_length_with_type(ctx[2].begin_addr, 0x30, &t1, &taglen);
-    ctx[2].header_len = taglen;
-    ctx[2].payload_len = t1;
-
-    ctx[3].begin_addr = ctx[2].begin_addr + ctx[2].header_len;
-    get_length_with_type(ctx[3].begin_addr, 0x06, &t1, &taglen);
-    ctx[3].header_len = taglen;
-    ctx[3].payload_len = t1;
-
-    oid = ctx[3].begin_addr + ctx[3].header_len;
-    oidlen = ctx[3].payload_len;
-
-    ctx[4].begin_addr = ctx[1].begin_addr + (ctx[1].header_len +
-                                             ctx[1].payload_len + ctx[2].header_len + ctx[2].payload_len);
-    get_length_with_type(ctx[4].begin_addr, 0x03, &t1, &taglen);
-
-    sig = ctx[4].begin_addr + taglen + unused_bit_len;
-    siglen = t1 - unused_bit_len;
-
-    printf("msg\n");
-    for(int i = 0; i < msglen; i++){
-        printf("%02x", msg[i]);
+    while(index < 6){
+        for(;;){
+            if (strcmp(OPT_ROOT_CERT, argv[index]) == 0) {
+                root_cert_path = argv[++index];
+                break;
+            }
+            if (strcmp(OPT_LEAF_CERT, argv[index]) == 0) {
+                leaf_cert_path = argv[++index];
+                break;
+            }
+            ++index;
+            break;
+        }
     }
-    printf("\n");
 
-    printf("oid\n");
-    for(int i = 0; i < oidlen; i++){
-        printf("%02x", oid[i]);
+    ret = cm_read_bin_file(root_cert_path, &root_cert, &root_cert_len);
+    if (ret != CM_SUCCESS) {
+        printf("cm_read_bin_file failed, path: %s\n", root_cert_path);
+        goto end;
     }
-    printf("\n");
 
-    printf("sig\n");
-    for(int i = 0; i < siglen; i++){
-        printf("%02x", sig[i]);
+    ret = cm_read_bin_file(leaf_cert_path, &leaf_cert, &leaf_cert_len);
+    if (ret != CM_SUCCESS) {
+        printf("cm_read_bin_file failed, path: %s\n", leaf_cert_path);
+        goto end;
     }
-    printf("\n");
+
+    ret = _sm2_cert_verify(root_cert, root_cert_len, leaf_cert, leaf_cert_len);
+    if (ret != ERR_OK) {
+        printf("_sm2_cert_verify failed\n");
+        goto end;
+    }
+
+//    ret = _sm2_cert_verify(g_cert_sub, sizeof(g_cert_sub), g_cert_leaf, sizeof(g_cert_leaf));
+//    if (ret != ERR_OK) {
+//        printf("_sm2_cert_verify failed\n");
+//        goto end;
+//    }
+
+    printf("sm2 certificate verify successful\n");
+end:
+    if (root_cert != NULL) {
+        free(root_cert);
+    }
+    if (leaf_cert != NULL) {
+        free(leaf_cert);
+    }
+
+    return ret;
 
 }

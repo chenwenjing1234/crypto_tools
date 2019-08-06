@@ -60,4 +60,11 @@ uint64_t cp_new_eckey_by_hex_pubkey_prikey(char *hex_pubkey, char *hex_prikey, E
 uint64_t cp_sm2_sign(EC_KEY *ec_key, uint8_t *msg, int msg_len, int pre_process,
                      uint8_t *signature, uint32_t *signature_len);
 
+int cp_sm2_verify(EC_KEY *ec_key, uint8_t *msg, int msg_len, int pre_process,
+                     uint8_t *signature, int signature_len);
+
+uint64_t cp_get_ec_key_from_cert(uint8_t *cert, int cert_len, EC_KEY **ec_key);
+
+void cp_sm2_init();
+
 #endif //CRYPTO_TOOLS_CP_SM2_H

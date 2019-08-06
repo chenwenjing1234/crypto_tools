@@ -5,6 +5,7 @@
 #include "cp_sm2.h"
 
 #include <openssl/sm2.h>
+#include <openssl/err.h>
 
 #include "cm_utils.h"
 #include "cp_defines.h"
@@ -139,6 +140,9 @@ uint64_t cp_gen_keypair(char *pubkey, char *prikey) {
     const BIGNUM *bn_prikey = NULL;
     const EC_POINT *ec_point = NULL;
     char *buf = NULL;
+    uint8_t msg[32] = {0x11};
+    uint8_t sig[72] = {0};
+    uint32_t siglen = sizeof(sig);
 
     ec_group = EC_GROUP_new_by_curve_name(NID_sm2p256v1);
     if (ec_group == NULL) {
@@ -169,6 +173,20 @@ uint64_t cp_gen_keypair(char *pubkey, char *prikey) {
     ec_point = EC_KEY_get0_public_key(ec_key);
     buf = EC_POINT_point2hex(ec_group, ec_point, POINT_CONVERSION_UNCOMPRESSED, NULL);
     strcpy(pubkey, buf);
+
+    //verify key pair
+    ret = cp_sm2_sign(ec_key, msg, sizeof(msg), 1, sig, &siglen);
+    if (ret != CP_SUCCESS) {
+        printf("cp_sm2_sign failed\n");
+        goto end;
+    }
+
+    int t = cp_sm2_verify(ec_key, msg, sizeof(msg), 1, sig, siglen);
+    if (t != CP_SUCCESS) {
+        printf("cp_sm2_verify failed\n");
+        goto end;
+    }
+
     OPENSSL_free(buf);
 
 end:
@@ -330,17 +348,83 @@ uint64_t cp_sm2_sign(EC_KEY *ec_key, uint8_t *msg, int msg_len, int pre_process,
             rc = ERR_get_error();
             goto end;
         }
+
         if (SM2_sign(type, dgst, (int)dgstlen, signature, signature_len, ec_key) != 1) {
-            rc = ERR_get_error();
+            rc = ERR_peek_last_error();
             goto end;
         }
     } else {
         if (!SM2_sign(type, msg, msg_len, signature, signature_len, ec_key)) {
-            rc = ERR_get_error();
+            rc = ERR_peek_last_error();
             goto end;
         }
     }
     rc = CP_SUCCESS;
     end:
     return rc;
+}
+
+
+int cp_sm2_verify(EC_KEY *ec_key, uint8_t *msg, int msg_len, int pre_process,
+                     uint8_t *signature, int signature_len) {
+    int rc = -1;
+    uint64_t inner_ret;
+    int type = NID_undef;
+    unsigned char dgst[EVP_MAX_MD_SIZE];
+    size_t dgstlen = sizeof(dgst);
+    const EVP_MD *md = EVP_sm3();
+
+    if(!msg || !signature || !ec_key) {
+        return rc;
+    }
+    if(pre_process) {
+        if(!SM2_compute_message_digest(md, md, (const unsigned char *)msg, (size_t)msg_len, SM2_DEFAULT_ID_GMT09, 16,
+                                       dgst, &dgstlen, ec_key)){
+            inner_ret = ERR_peek_last_error();
+            goto end;
+        }
+
+        if (SM2_verify(type, dgst, (int)dgstlen, signature, signature_len, ec_key) != 1) {
+            inner_ret = ERR_peek_last_error();
+            goto end;
+        }
+    } else {
+        if (!SM2_verify(type, msg, msg_len, signature, signature_len, ec_key)) {
+            inner_ret = ERR_peek_last_error();
+            goto end;
+        }
+    }
+    rc = CP_SUCCESS;
+end:
+    return rc;
+}
+
+uint64_t cp_get_ec_key_from_cert(uint8_t *cert, int cert_len, EC_KEY **ec_key) {
+    uint64_t rc;
+    uint8_t *p = cert;
+    X509 *x509 = NULL;
+    EVP_PKEY *evp_pkey = NULL;
+    EC_KEY *key = NULL;
+
+    x509 = d2i_X509(NULL, (const uint8_t**)&p, cert_len);
+    if (x509 == NULL) {
+        rc = ERR_peek_last_error();
+        return rc;
+    }
+
+    evp_pkey = X509_get0_pubkey(x509);
+
+    key = EVP_PKEY_get0_EC_KEY(evp_pkey);
+
+    *ec_key = EC_KEY_dup(key);
+
+    X509_free(x509);
+
+    return CP_SUCCESS;
+}
+
+void cp_sm2_init() {
+
+    ERR_load_ERR_strings();
+    ERR_load_CRYPTO_strings();
 }

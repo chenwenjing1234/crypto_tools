@@ -12,6 +12,12 @@ typedef struct {
     char *help_info;
 } func_table_st;
 
+typedef struct _cert_parse_ctx_st{
+    uint8_t *begin_addr;
+    int header_len;
+    int payload_len;
+} cert_parse_ctx_st;
+
 #define ERR_OK                   0X00000000
 
 

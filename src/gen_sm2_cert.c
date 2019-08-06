@@ -123,6 +123,7 @@ static int _gen_sm2_cert(uint8_t *csr, int csr_len, char *cert_type, char *ca_pa
     }
 
 end:
+    X509_free(x509);
     return ret;
 }
 
@@ -235,7 +236,7 @@ end:
 }
 
 static int _do_x509_sign(X509 *x509, char *cert_path, char *cert_type) {
-    int ret = 0;
+    int ret;
     uint64_t cp_ret;
     uint8_t *cert_info = NULL;
     int cert_info_len = 0;
@@ -248,6 +249,7 @@ static int _do_x509_sign(X509 *x509, char *cert_path, char *cert_type) {
     EC_KEY *ec_key = NULL;
     uint8_t sig[72] = {0};
     uint32_t sig_len = sizeof(sig);
+    uint8_t *buf = NULL; //store signature results, free by X509_free
 
     cp_set_x509_signature_alg(x509);
 
@@ -297,7 +299,16 @@ static int _do_x509_sign(X509 *x509, char *cert_path, char *cert_type) {
         goto end;
     }
 
-    cp_set_x509_signature(x509, sig, sig_len);
+    buf = (uint8_t*)calloc(sig_len, 1);
+    if (buf == NULL) {
+        printf("calloc %d bytes memory failed\n", sig_len);
+        ret = -1;
+        goto end;
+    }
+
+    memcpy(buf, sig, sig_len);
+
+    cp_set_x509_signature(x509, buf, sig_len);
 
     ret = ERR_OK;
 end:
@@ -347,7 +358,7 @@ static int _save_cert(X509 *x509, char *cert_path) {
     return ERR_OK;
 }
 
-//crypto_tools gen_sm2_cert -csr xx.csr -type root/sub/leaf -ca_path xxx -cert_path xxx.cer
+//crypto_tools -gen_sm2_cert -csr xx.csr -type root/sub/leaf -ca_path xxx -cert_path xxx.cer
 int gen_sm2_cert_main(int argc, char **argv) {
     int ret = 1;
     char *csr_path = NULL;
@@ -357,7 +368,7 @@ int gen_sm2_cert_main(int argc, char **argv) {
     int index = 2;
     uint8_t *csr = NULL;
     int csr_len = 0;
-    FILE *fp = NULL;
+//    FILE *fp = NULL;
 
     if (argc < 10) {
         printf("input arguments invalid, example as flow:\n");
@@ -395,21 +406,21 @@ int gen_sm2_cert_main(int argc, char **argv) {
         return ret;
     }
 
-    fp = fopen(csr_path, "rb");
-    if (fp == NULL) {
-        printf("open csr file failed, path: %s\n", csr_path);
-        return ret;
-    }
+//    fp = fopen(csr_path, "rb");
+//    if (fp == NULL) {
+//        printf("open csr file failed, path: %s\n", csr_path);
+//        return ret;
+//    }
 
     ret = cm_read_bin_file(csr_path, &csr, &csr_len);
     if (ret != CM_SUCCESS) {
-        printf("cm_read_bin_file failed\n");
+        printf("cm_read_bin_file failed, path: %s\n", csr_path);
         goto end;
     }
 
     ret = _gen_sm2_cert(csr, csr_len, cert_type, ca_path, cert_path);
     if (ret != ERR_OK) {
-        printf("_gen_sm2_cert failed\n");
+        printf("_gen_sm2_cert failed, cert path: %s\n", cert_path);
         goto end;
     }
 
@@ -418,6 +429,6 @@ end:
     if (csr != NULL) {
         free(csr);
     }
-    fclose(fp);
+//    fclose(fp);
     return ret;
 }
