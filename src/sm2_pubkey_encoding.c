@@ -39,7 +39,7 @@ int sm2_pubkey_encoding_main(int argc, char **argv) {
         }
     }
 
-    if (0x00 != cm_hex2bin(pubkey_hex, &pubkey_bin, &pubkey_bin_len)) {
+    if (CM_SUCCESS != cm_hex2bin(pubkey_hex, &pubkey_bin, &pubkey_bin_len)) {
         printf("convert hex to bin failed\n");
         goto end;
     }
@@ -51,7 +51,7 @@ int sm2_pubkey_encoding_main(int argc, char **argv) {
         goto end;
     }
 
-    if (0x00 != cm_bin2hex(pubkey_der, (size_t)pubkey_der_len, &pubkey_der_hex)) {
+    if (CM_SUCCESS != cm_bin2hex(pubkey_der, (size_t)pubkey_der_len, &pubkey_der_hex)) {
         printf("convert bin to hex failed\n");
         goto end;
     }

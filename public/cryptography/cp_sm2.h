@@ -67,4 +67,6 @@ uint64_t cp_get_ec_key_from_cert(uint8_t *cert, int cert_len, EC_KEY **ec_key);
 
 void cp_sm2_init();
 
+int cp_sm2_kp_check(uint8_t *prikey, int prikey_len, uint8_t *pubkey, int pubkey_len);
+
 #endif //CRYPTO_TOOLS_CP_SM2_H

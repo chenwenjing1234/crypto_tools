@@ -16,6 +16,8 @@
 #define GEN_SM2_CSR             "-gen_sm2_csr"
 #define GEN_SM2_CERT            "-gen_sm2_cert"
 #define SM2_CERT_VERIFY         "-sm2_cert_verify"
+#define SM2_KP_CHECK            "-sm2_kp_check"
+#define SM2_SIGN                "-sm2_sign"
 
 
 #define OPT_PUBKEY              "-pubkey"
@@ -30,6 +32,8 @@
 #define OPT_CERT_PATH           "-cert_path"
 #define OPT_ROOT_CERT           "-root_cert"
 #define OPT_LEAF_CERT           "-leaf_cert"
+#define OPT_PREPROCESS          "-pre_process"
+#define OPT_MSG                 "-msg"
 
 
 #define CERT_TYPE_ROOT          "root"
@@ -78,5 +82,9 @@ int gen_sm2_csr_main(int argc, char **argv);
 int gen_sm2_cert_main(int argc, char **argv);
 
 int sm2_cert_verify_main(int argc, char **argv);
+
+int sm2_kp_check_main(int argc, char **argv);
+
+int sm2_sign_main(int argc, char **argv);
 
 #endif //CRYPTO_TOOLS_CA_DEFINE_H

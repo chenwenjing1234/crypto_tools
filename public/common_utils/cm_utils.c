@@ -21,13 +21,13 @@ uint32_t cm_bin2hex(uint8_t *in, size_t len, char **out) {
     }
     buf[2*len] = '\0';
     *out = buf;
-    return 0;
+    return CM_SUCCESS;
 }
 
 uint32_t cm_hex2bin(char *in, uint8_t **out, uint32_t *outlen) {
     BIGNUM *bn = NULL;
     int len;
-    uint32_t ret = 1;
+    uint32_t ret = 0;
     uint8_t *buf = NULL;
 
     len = BN_hex2bn(&bn, in);
@@ -39,10 +39,10 @@ uint32_t cm_hex2bin(char *in, uint8_t **out, uint32_t *outlen) {
     len = BN_bn2bin(bn, buf);
     *out = buf;
     *outlen = (uint32_t)len;
-    ret = 0;
+    ret = CM_SUCCESS;
 end:
     BN_free(bn);
-    if (ret != 0 && buf != NULL) {
+    if (ret != CM_SUCCESS && buf != NULL) {
         free(buf);
     }
     return ret;

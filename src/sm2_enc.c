@@ -47,11 +47,11 @@ int sm2_enc_main(int argc, char *argv[]) {
         }
     }
 
-    if (0x00 != cm_hex2bin(pubkey_hex, &pubkey_bin, &pubkey_bin_len)) {
+    if (CM_SUCCESS != cm_hex2bin(pubkey_hex, &pubkey_bin, &pubkey_bin_len)) {
         printf("convert hex to bin failed\n");
         goto end;
     }
-    if (0x00 != cm_hex2bin(plain_hex, &plain_bin, &plain_bin_len)) {
+    if (CM_SUCCESS != cm_hex2bin(plain_hex, &plain_bin, &plain_bin_len)) {
         printf("convert hex to bin failed\n");
         goto end;
     }
@@ -63,7 +63,7 @@ int sm2_enc_main(int argc, char *argv[]) {
         goto end;
     }
 
-    if (0x00 != cm_bin2hex(cipher, cipher_len, &cipher_hex)) {
+    if (CM_SUCCESS != cm_bin2hex(cipher, cipher_len, &cipher_hex)) {
         printf("convert bin to hex failed\n");
         goto end;
     }

@@ -46,11 +46,11 @@ int sm2_dec_main(int argc, char *argv[]) {
         }
     }
 
-    if (0x00 != cm_hex2bin(prikey_hex, &prikey_bin, &prikey_bin_len)) {
+    if (CM_SUCCESS != cm_hex2bin(prikey_hex, &prikey_bin, &prikey_bin_len)) {
         printf("convert hex to bin failed\n");
         goto end;
     }
-    if (0x00 != cm_hex2bin(cipher_hex, &cipher_bin, &cipher_bin_len)) {
+    if (CM_SUCCESS != cm_hex2bin(cipher_hex, &cipher_bin, &cipher_bin_len)) {
         printf("convert hex to bin failed\n");
         goto end;
     }
@@ -62,7 +62,7 @@ int sm2_dec_main(int argc, char *argv[]) {
         goto end;
     }
 
-    if (0x00 != cm_bin2hex(plain, plain_len, &plain_hex)) {
+    if (CM_SUCCESS != cm_bin2hex(plain, plain_len, &plain_hex)) {
         printf("convert bin to hex failed\n");
         goto end;
     }

@@ -16,7 +16,9 @@ func_table_st g_func_table[] = {
         {SM2_PUBKEY_ENCODING, sm2_pubkey_encoding_main, "sm2 public key encoding with DER"},
         {GEN_SM2_CSR, gen_sm2_csr_main, "generate certificate singing request"},
         {GEN_SM2_CERT, gen_sm2_cert_main, "generate sm2 certificate"},
-        {SM2_CERT_VERIFY, sm2_cert_verify_main, "sm2 certificate verify"}
+        {SM2_CERT_VERIFY, sm2_cert_verify_main, "sm2 certificate verify"},
+        {SM2_KP_CHECK, sm2_kp_check_main, "sm2 key pair check"},
+        {SM2_SIGN, sm2_sign_main, "sm2 signature"}
 };
 
 int print_help_info(int argc, char *argv[]) {
@@ -40,6 +42,10 @@ int exec_func_by_option(int argc, char *argv[]) {
             return g_func_table[i].func(argc, argv);
         }
     }
+
+    printf("input args invalid, correct as follow:\n");
+
+    print_help_info(0, NULL);
 
 }
 
