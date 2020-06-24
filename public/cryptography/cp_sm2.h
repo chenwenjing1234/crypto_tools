@@ -39,7 +39,7 @@ uint64_t cp_sm2_dec(uint8_t *prikey, uint32_t prikey_len,
                     uint8_t *cipher, size_t cipher_len,
                     uint8_t **plain, size_t *plain_len);
 
-uint64_t cp_gen_keypair(char *pubkey, char *prikey);
+uint64_t cp_gen_sm2_keypair(char *pubkey, char *prikey);
 
 uint64_t cp_sm2_pubkey_encoding(uint8_t *pubkey, size_t pubkey_len,
                              uint8_t **pubkey_der, int *pubkey_der_len);

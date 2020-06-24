@@ -11,9 +11,9 @@ int gen_sm2_kp_main(int argc, char *argv[]) {
     char pubkey_hex[131] = {0};
     char prikey_hex[65] = {0};
 
-    ret = cp_gen_keypair(pubkey_hex, prikey_hex);
+    ret = cp_gen_sm2_keypair(pubkey_hex, prikey_hex);
     if (ret != CP_SUCCESS) {
-        printf("cp_gen_keypair failed, ret = %lx", ret);
+        printf("cp_gen_sm2_keypair failed, ret = %lx", ret);
         return 1;
     }
     printf("pubkey: %s\n", pubkey_hex);

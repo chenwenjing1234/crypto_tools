@@ -134,7 +134,7 @@ end:
     return ret;
 }
 
-uint64_t cp_gen_keypair(char *pubkey, char *prikey) {
+uint64_t cp_gen_sm2_keypair(char *pubkey, char *prikey) {
     uint64_t ret = CP_SUCCESS;
     EC_KEY *ec_key = NULL;
     EC_GROUP *ec_group = NULL;

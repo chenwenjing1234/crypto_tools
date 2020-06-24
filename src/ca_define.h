@@ -10,6 +10,7 @@
 
 #define HELP                    "--help"
 #define GEN_SM2_KP              "-gen_sm2_kp"
+#define GEN_RSA_KP              "-gen_rsa_kp"
 #define SM2_ENC                 "-sm2_enc"
 #define SM2_DEC                 "-sm2_dec"
 #define SM2_PUBKEY_ENCODING     "-sm2_pubkey_encoding"
@@ -18,6 +19,7 @@
 #define SM2_CERT_VERIFY         "-sm2_cert_verify"
 #define SM2_KP_CHECK            "-sm2_kp_check"
 #define SM2_SIGN                "-sm2_sign"
+#define AES_ENC                 "-aes_enc"
 
 
 #define OPT_PUBKEY              "-pubkey"
@@ -71,6 +73,8 @@ typedef struct options_st {
 
 int gen_sm2_kp_main(int argc, char *argv[]);
 
+int gen_rsa_kp_main(int argc, char *argv[]);
+
 int sm2_enc_main(int argc, char *argv[]);
 
 int sm2_dec_main(int argc, char *argv[]);
@@ -86,5 +90,7 @@ int sm2_cert_verify_main(int argc, char **argv);
 int sm2_kp_check_main(int argc, char **argv);
 
 int sm2_sign_main(int argc, char **argv);
+
+int aes_enc_main(int argc, char **argv);
 
 #endif //CRYPTO_TOOLS_CA_DEFINE_H

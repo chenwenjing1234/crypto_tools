@@ -14,7 +14,7 @@ uint32_t cm_bin2hex(uint8_t *in, size_t len, char **out) {
 
     buf = (char*)calloc(2 * len + 1, 1);
     if (buf == NULL) {
-        return 1;
+        return 0;
     }
     for (int i = 0; i < len; i++) {
         sprintf(buf + i * 2, "%02x", in[i]);

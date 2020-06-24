@@ -86,7 +86,7 @@ int main(int argc, char *argv[]) {
     int len = 0;
 
     if ((strcmp(argv[1], "gen_sm2_kp") == 0)) {
-        ret = cp_gen_keypair(pubkey_hex, prikey_hex);
+        ret = cp_gen_sm2_keypair(pubkey_hex, prikey_hex);
         if (ret != CP_SUCCESS) {
             printf("gen keypair failed, ret = %lx", ret);
             return 1;
